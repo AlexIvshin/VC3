@@ -169,7 +169,7 @@ russian_number_system = {
 }
 
 
-def number_formation(number_words):
+def number_formation(number_words) -> int:
     numbers = []
     for number_word in number_words:
         numbers.append(russian_number_system[number_word])
@@ -183,7 +183,7 @@ def number_formation(number_words):
         return numbers[0]
 
 
-def get_decimal_sum(decimal_digit_words):
+def get_decimal_sum(decimal_digit_words) -> float:
     """
     function to convert post decimal digit words to numerial digits
     input: list of strings
@@ -194,7 +194,7 @@ def get_decimal_sum(decimal_digit_words):
     return float(final_decimal_string)
 
 
-def word_to_num(number_sentence):
+def word_to_num(number_sentence) -> int:
     """
     function to return integer for an input `number_sentence` string
     input: string
@@ -349,7 +349,7 @@ def word_to_num(number_sentence):
     return total_sum
 
 
-def word2num_ru(text, otherwords=False):
+def word2num_ru(text, otherwords=False) -> str | int | None:
     if otherwords:
         clean_numbers = []
         clean_words = []

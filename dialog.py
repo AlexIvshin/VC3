@@ -1,5 +1,5 @@
 model_name: str = 'первая'
-title_app = 'VCom2.2'
+title_app = 'VCom3'
 
 # model_says fraze
 answer_ok = ['О,кей!', 'Выполняю!', 'Хорошо', 'Секунду!', 'Легко!', 'Делаю!', 'Ун момент!']

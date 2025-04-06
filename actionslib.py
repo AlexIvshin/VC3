@@ -36,6 +36,7 @@ def confirm_action(foo_name: str) -> None:
 
 
 def call_confirm_action(action: str) -> None:
+
     def execute_command(cmd: str) -> None:
         ss.answer_ok_and_pass()
         run(cmd, shell=True)
@@ -83,7 +84,7 @@ def search() -> None:
     global last_function
     check = True if last_function == function else False
     last_function = '' if check else function
-    skills.SearchEngine(cmdline, function, check).get_result()
+    return skills.SearchEngine(cmdline, function, check).get_result()
 
 
 def calculate() -> None:

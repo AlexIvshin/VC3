@@ -99,8 +99,7 @@ class Calculator:
             try:
                 return n1 / n2
             except ZeroDivisionError:
-                talk(f'Обнаружено деление на ноль!!!')
-                return None
+                return talk(f'Обнаружено деление на ноль!!!')
         return None
 
     def tell_the_result(self) -> None:
@@ -161,10 +160,9 @@ class SearchEngine:
     @classmethod
     def exception_words(cls, wiki_error=False) -> None:
         if wiki_error:
-            talk('Необходим более точный запрос!')
-            return
+            return talk('Необходим более точный запрос!')
         else:
-            talk('Упс! Что-то не так пошло! Скорее всего сеть отсутствует.')
+            return talk('Упс! Что-то не так пошло! Скорее всего сеть отсутствует.')
 
 
     @classmethod
@@ -333,8 +331,7 @@ class Sinoptik:
         for key in self.cities:
             if key in self.commandline:
                 return f'{self.site_url}/погода-{self.cities[key]}'
-        talk('Не поняла, погода в каком городе?')
-        return None
+        return talk('Не поняла, погода в каком городе?')
 
     def get_weather_forecast(self) -> None:
         url_weather_city = self.get_url()
@@ -392,12 +389,11 @@ class Sinoptik:
             print(f'{dt.today().strftime("%d-%m-%Y")} / Восход: {day_light[0]} / Закат: {day_light[1]}')
             print(tb(daily_temp_data, headers=col_names_daily_temp, tablefmt="mixed_outline", numalign="center"))
             print(tb(week_data, headers=col_names, tablefmt="mixed_outline", numalign="center"))
-            talk(f'Сейчас, {current_temp}. {description}', speech_rate=100)
-            return None
+            return talk(f'Сейчас, {current_temp}. {description}', speech_rate=100)
 
         except (requests.exceptions.ConnectionError, requests.exceptions.ChunkedEncodingError):
-            talk('Упс! Что-то не так пошло! Скорее всего сеть отсутствует.')
-            return None
+            return talk('Упс! Что-то не так пошло! Скорее всего сеть отсутствует.')
+
 
 
 class Polyhistor:
@@ -424,8 +420,7 @@ class Polyhistor:
                 joke.append(res)
             return random.choice(joke)
         except requests.exceptions.ConnectTimeout:
-            talk('Упс! Время ожидания превышено! Целевой сервер не отвечает.')
-            return None
+            return talk('Упс! Время ожидания превышено! Целевой сервер не отвечает.')
 
     @staticmethod
     def get_fact() -> Optional[Any]:
@@ -459,10 +454,11 @@ class Polyhistor:
             if result:
                 talk(result, speech_rate=100)
                 time.sleep(0.2)
-                talk(random.choice(dg.qustion_replay))
+                return talk(random.choice(dg.qustion_replay))
+            return None
 
         except requests.exceptions.ConnectionError:
-            talk('Упс! Что-то не так пошло! Скорее всего сеть отсутствует.')
+            return talk('Упс! Что-то не так пошло! Скорее всего сеть отсутствует.')
 
 
 class ExchangeRates:
@@ -555,12 +551,10 @@ class ExchangeRates:
 
             print()
             talk(f'В {bank_name}е курс {currency} к гривне сегодня:')
-            talk(f' Покупка: {self.get_correct_value_rate(buy)}. Продажа: {self.get_correct_value_rate(sale)}.')
-            return None
+            return talk(f' Покупка: {self.get_correct_value_rate(buy)}. Продажа: {self.get_correct_value_rate(sale)}.')
 
         except requests.exceptions.ConnectionError:
-            print('Упс! Что-то не так пошло! Скорее всего сеть отсутствует.')
-            return None
+            return print('Упс! Что-то не так пошло! Скорее всего сеть отсутствует.')
 
 
 class Translators:
@@ -1069,8 +1063,7 @@ class File:
     def delete_file(self, file: str, permission=False) -> str | None:
         if permission:
             os.remove(f'{self.note_dir}/{file}')
-            talk(random.choice(dg.done))
-            return None
+            return talk(random.choice(dg.done))
         else:
             talk(f'Действительно удалить файл?')
             print(f'"{file}"')

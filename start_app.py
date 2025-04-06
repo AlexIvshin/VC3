@@ -31,6 +31,7 @@ class TextWrapper:
             input_color = '#99ff66'
             output_color = '#66b3ff'
             r_tag = w_tag = col = ''
+
             if '◄' in text:
                 r_tag, w_tag, col = 'output', 'input', input_color
             elif '►' in text:
@@ -98,7 +99,9 @@ def check_run_scr() -> None:
         num_scr_to_run = len(run_scripts)
         run_flag = True
         return
+
     num_scr_to_run = 0
+
     if run_flag:
         run_flag = False
         report_completion()

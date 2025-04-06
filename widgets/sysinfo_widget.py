@@ -33,4 +33,4 @@ class InfoWidget:
 
 
 def show_sysinfo() -> None:
-    InfoWidget.infowid.mainloop()
+    return InfoWidget.infowid.mainloop()

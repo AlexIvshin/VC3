@@ -73,6 +73,7 @@ def notebook_reacts(commandline: str) -> None:
 
 
 def file_existence(function) -> ():
+
     def wrapper() -> None | str | list[str]:
         if not file:
             return choice_file()
@@ -83,6 +84,7 @@ def file_existence(function) -> ():
 
 
 def file_existence_and_clear_stack(function) -> ():
+
     def wrapper() -> None:
         file_existence(function)
         stack.clear_stack()
@@ -106,28 +108,27 @@ def choice_file(num=None) -> Union[None, str, list[str]]:
 
     except (ValueError, IndexError):
         talk('Не коректный выбор!')
-        choice_file()
-        return None
+        return choice_file()
 
 
 @file_existence
-def read_file():
-    file_action.read_file(file)
+def read_file() -> None:
+    return file_action.read_file(file)
 
 
 @file_existence
-def edit_file():
-    file_action.edit_file(file)
+def edit_file() -> None:
+    return file_action.edit_file(file)
 
 
 @file_existence
-def rename_file():
-    file_action.rename_file(file)
+def rename_file() -> None:
+    return file_action.rename_file(file)
 
 
 @file_existence_and_clear_stack
-def delete_file():
-    file_action.delete_file(file)
+def delete_file() -> None:
+    return file_action.delete_file(file)
 
 
 def create_file() -> bool:
