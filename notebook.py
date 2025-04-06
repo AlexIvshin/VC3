@@ -113,7 +113,10 @@ def choice_file(num=None) -> Union[None, str, list[str]]:
 
 @file_existence
 def read_file() -> None:
-    return file_action.read_file(file)
+    try:
+        return file_action.read_file(file)
+    except FileNotFoundError:
+        return None
 
 
 @file_existence
