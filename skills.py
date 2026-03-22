@@ -520,18 +520,29 @@ class ExchangeRates:
                 return talk('Упс! Целевой сервер не отвечает.')
 
             soup = BeautifulSoup(r.text, 'html.parser')
-            soup_banks_names = soup('td', class_='js-ex-rates mfcur-table-bankname')
-            soup_buy = soup.find_all('td', class_='responsive-hide mfm-text-right mfm-pr0')
-            soup_sale = soup.find_all('td', class_='responsive-hide mfm-text-left mfm-pl0')
+
+            soup_banks_names = []
+            soup_buy = []
+            soup_sale = []
+            c = 0
+
+            for wrapper_banks_names in soup.find_all('a', class_='sc-1cut6ea-16 hzuRZz'):
+                soup_banks_names.append(wrapper_banks_names.text)
+
+            for wrapper_buy in soup.find_all('td', class_='sc-1cut6ea-12 sc-1cut6ea-15 oTWr jmnogo'):
+                c += 1
+                if c % 2 != 0:
+                    soup_buy.append(wrapper_buy.text.split('/')[0])
+                    soup_sale.append(wrapper_buy.text.split('/')[1])
 
             exchange_rates: dict = {}
             len_banks_names: list = []
             count = 0
             while len(exchange_rates) <= 5:
-                buy = soup_buy[count].text
-                sale = soup_sale[0].text if count == 0 else soup_sale[count * 2].text
+                buy = soup_buy[count]
+                sale = soup_sale[count]
                 if buy and sale:
-                    bank_name = soup_banks_names[count].text.replace('\n', '').strip()
+                    bank_name = soup_banks_names[count]
                     len_banks_names.append(len(bank_name))
                     exchange_rates[bank_name] = {'buy': buy, 'sale': sale}
                 count += 1
@@ -545,12 +556,12 @@ class ExchangeRates:
                 index = max_len_bank_name - len(key)
                 print(f'{" " * index}{pstring}')
 
-            bank_name = soup_banks_names[0].text.replace('\n', '').rstrip()
-            buy = round(float(soup_buy[0].text), 2)
-            sale = round(float(soup_sale[0].text), 2)
+            bank_name = soup_banks_names[0]
+            buy = float(soup_buy[0].lstrip().rstrip().replace(',', '.'))
+            sale = float(soup_sale[0].lstrip().rstrip().replace(',', '.'))
 
             print()
-            talk(f'В {bank_name}е курс {currency} к гривне сегодня:')
+            talk(f'В {bank_name} курс {currency} к гривне сегодня:')
             return talk(f' Покупка: {self.get_correct_value_rate(buy)}. Продажа: {self.get_correct_value_rate(sale)}.')
 
         except requests.exceptions.ConnectionError:
