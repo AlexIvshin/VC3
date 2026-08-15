@@ -509,7 +509,7 @@ class ExchangeRates:
         if not ss.check_internet():
             return None
 
-        current_date = dt.today().strftime('%d-%m-%Y %H:%M:%S')
+        # current_date = dt.today().strftime('%d-%m-%Y %H:%M:%S')
         currency_key, currency = self.determine_the_currency()
         url = f'https://minfin.com.ua/currency/banks/{currency_key}/'
 
@@ -521,48 +521,30 @@ class ExchangeRates:
 
             soup = BeautifulSoup(r.text, 'html.parser')
 
-            soup_banks_names = []
-            soup_buy = []
-            soup_sale = []
+            buy = ''
+            sale = ''
             c = 0
 
-            for wrapper_banks_names in soup.find_all('a', class_='sc-1cut6ea-16 hzuRZz'):
-                soup_banks_names.append(wrapper_banks_names.text)
-
-            for wrapper_buy in soup.find_all('td', class_='sc-1cut6ea-12 sc-1cut6ea-15 oTWr jmnogo'):
+            for wrapper_buy in soup.find_all('div', class_='sc-1x32wa2-10 ccSsXj'):
                 c += 1
-                if c % 2 != 0:
-                    soup_buy.append(wrapper_buy.text.split('/')[0])
-                    soup_sale.append(wrapper_buy.text.split('/')[1])
+                if c == 1:
+                    buy = wrapper_buy.text[:5]
+                if c == 2:
+                    sale = wrapper_buy.text[:5]
 
-            exchange_rates: dict = {}
-            len_banks_names: list = []
-            count = 0
-            while len(exchange_rates) <= 5:
-                buy = soup_buy[count]
-                sale = soup_sale[count]
-                if buy and sale:
-                    bank_name = soup_banks_names[count]
-                    len_banks_names.append(len(bank_name))
-                    exchange_rates[bank_name] = {'buy': buy, 'sale': sale}
-                count += 1
-
-            max_len_bank_name: int = max(len_banks_names)
-            print()
-            print(f'{current_date}{" " * (max_len_bank_name - len(str(current_date)))}  {currency_key.upper()}')
-
-            for key in exchange_rates.keys():
-                pstring = f'{key}: {exchange_rates[key]["buy"]} / {exchange_rates[key]["sale"]}'
-                index = max_len_bank_name - len(key)
-                print(f'{" " * index}{pstring}')
-
-            bank_name = soup_banks_names[0]
-            buy = float(soup_buy[0].lstrip().rstrip().replace(',', '.'))
-            sale = float(soup_sale[0].lstrip().rstrip().replace(',', '.'))
+            try:
+                buy = float(buy.lstrip().rstrip().replace(',', '.'))
+                sale = float(sale.lstrip().rstrip().replace(',', '.'))
+            except ValueError:
+                buy = sale = '_'
 
             print()
-            talk(f'В {bank_name} курс {currency} к гривне сегодня:')
-            return talk(f' Покупка: {self.get_correct_value_rate(buy)}. Продажа: {self.get_correct_value_rate(sale)}.')
+
+            if type(buy) == type(sale) == float:
+                talk(f'Средний курс {currency} к гривне в банках сегодня:')
+                return talk(f' Покупка: {self.get_correct_value_rate(buy)}.'
+                            f' Продажа: {self.get_correct_value_rate(sale)}.')
+            return None
 
         except requests.exceptions.ConnectionError:
             return print('Упс! Что-то не так пошло! Скорее всего сеть отсутствует.')
