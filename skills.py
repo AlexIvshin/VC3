@@ -492,7 +492,7 @@ class ExchangeRates:
                 kop = 'копейка'
             if 5 > k > 1:
                 kop = 'копейки'
-            return f'{rate_str.replace(".", f" {grn} ")} {kop}.'
+            return f'{rate_str.replace(".", f" {grn} ")} {kop}'
 
         return f'{int(rate)} {grn}'
 
@@ -501,53 +501,87 @@ class ExchangeRates:
         currency = 'доллара'
         if 'евро' in self.commandline:
             key, currency = 'eur', 'евро'
-        elif 'злот' in self.commandline or 'польск' in self.commandline:
-            key, currency = 'pln', 'польского злотого'
+        # elif 'злот' in self.commandline or 'польск' in self.commandline:
+        #     key, currency = 'pln', 'польского злотого'
         return key, currency
 
     def get_exchange_rates(self) -> None:
         if not ss.check_internet():
             return None
 
-        # current_date = dt.today().strftime('%d-%m-%Y %H:%M:%S')
         currency_key, currency = self.determine_the_currency()
-        url = f'https://minfin.com.ua/currency/banks/{currency_key}/'
 
-        try:
-            r = requests.get(url)
-            if r.status_code != 200:
-                print(f'  Status code: {r.status_code} !!!')
-                return talk('Упс! Целевой сервер не отвечает.')
+        # Ссылка на публичный API ПриватБанка (розничный курс)
+        url = 'https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5'
+        response = requests.get(url)
 
-            soup = BeautifulSoup(r.text, 'html.parser')
-
-            buy = ''
-            sale = ''
-            c = 0
-
-            for wrapper_buy in soup.find_all('div', class_='sc-1x32wa2-10 ccSsXj'):
-                c += 1
-                if c == 1:
-                    buy = wrapper_buy.text[:5]
-                if c == 2:
-                    sale = wrapper_buy.text[:5]
+        if response.status_code == 200:
 
             try:
-                buy = float(buy.lstrip().rstrip().replace(',', '.'))
-                sale = float(sale.lstrip().rstrip().replace(',', '.'))
-            except ValueError:
-                buy = sale = '_'
+                data = response.json()
+                currency_list = {}
+                if currency_key == 'usd':
+                    currency_list = data[1]
+                elif currency_key == 'eur':
+                    currency_list = data[0]
 
-            print()
+                buy = float(currency_list['buy'])
+                sale = float(currency_list['sale'])
 
-            if type(buy) == type(sale) == float:
-                talk(f'Средний курс {currency} к гривне в банках сегодня:')
-                return talk(f' Покупка: {self.get_correct_value_rate(buy)}.'
-                            f' Продажа: {self.get_correct_value_rate(sale)}.')
+                print()
+
+                if type(buy) == type(sale) == float:
+                    talk(f'Сегодня в Приват банке курс {currency} к гривне составляет:')
+                    return talk(f' Покупка: {self.get_correct_value_rate(buy)}.'
+                                f' Продажа: {self.get_correct_value_rate(sale)}.')
+                return None
+
+            except requests.exceptions.JSONDecodeError:
+                print("Не удалось декодировать JSON. Сервер отправил текст, а не JSON.")
+                return None
+        else:
+            print(f"Сервер вернул сообщение об ошибке.")
             return None
 
-        except requests.exceptions.ConnectionError:
-            return print('Упс! Что-то не так пошло! Скорее всего сеть отсутствует.')
+
+        # Курс валют. Парсинг сайта minfin.com.ua
+
+        # url = f'https://minfin.com.ua/currency/banks/{currency_key}/'
+        # try:
+        #     r = requests.get(url)
+        #     if r.status_code != 200:
+        #         print(f'  Status code: {r.status_code} !!!')
+        #         return talk('Упс! Целевой сервер не отвечает.')
+        #
+        #     soup = BeautifulSoup(r.text, 'html.parser')
+        #
+        #     buy = ''
+        #     sale = ''
+        #     c = 0
+        #
+        #     for wrapper_buy in soup.find_all('div', class_='sc-1x32wa2-10 ccSsXj'):
+        #         c += 1
+        #         if c == 1:
+        #             buy = wrapper_buy.text[:5]
+        #         if c == 2:
+        #             sale = wrapper_buy.text[:5]
+        #
+        #     try:
+        #         buy = float(buy.lstrip().rstrip().replace(',', '.'))
+        #         sale = float(sale.lstrip().rstrip().replace(',', '.'))
+        #     except ValueError:
+        #         buy = sale = '_'
+        #
+        #     print()
+        #
+        #     if type(buy) == type(sale) == float:
+        #         talk(f'Средний курс {currency} к гривне в банках сегодня:')
+        #         return talk(f' Покупка: {self.get_correct_value_rate(buy)}.'
+        #                     f' Продажа: {self.get_correct_value_rate(sale)}.')
+        #     return None
+        #
+        # except requests.exceptions.ConnectionError:
+        #     return print('Упс! Что-то не так пошло! Скорее всего сеть отсутствует.')
 
 
 class Translators:
